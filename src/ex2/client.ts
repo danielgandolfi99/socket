@@ -1,37 +1,49 @@
-import dgram from 'dgram';
-import readline from 'readline';
+import dgram from "dgram";
+import readline from "readline";
 
-const client = dgram.createSocket('udp4');
+const client = dgram.createSocket("udp4");
 const PORT = 41234;
-const HOST = 'localhost';
+const HOST = "localhost";
 
-// Ler entrada do console
+// Le entrada do console
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 // Envia uma mensagem para o servidor
 const sendMessage = (message: string) => {
-  const msg = Buffer.from(message);
-
-  client.send(msg, PORT, HOST, (err) => {
+  client.send(message, PORT, HOST, (err) => {
     if (err) {
-      console.error('Erro ao enviar a mensagem:', err);
+      console.error("Erro ao enviar a mensagem:", err);
     } else {
-      console.log('Mensagem enviada. Aguardando resposta...');
+      console.log("Mensagem enviada. Aguardando resposta...");
     }
   });
 };
 
+// Função para continuar pedindo mensagens
+const promptForMessage = () => {
+  rl.question("Digite a mensagem para enviar ao servidor: ", (message) => {
+    if (!message) {
+      console.error("Por favor, forneça uma mensagem.");
+      return promptForMessage(); // Se a mensagem estiver vazia, solicita novamente.
+    }
+    sendMessage(message);
+  });
+};
+
 // Recebe a resposta do servidor
-client.on('message', (msg) => {
-  console.log(`Mensagem recebida do servidor: ${msg.toString()}`);
-  client.close(); // Fecha o cliente após receber a resposta
+client.on("message", (msg) => {
+  console.log("Resposta do servidor:", msg.toString());
+  promptForMessage(); // Após receber a resposta, pede uma nova mensagem.
 });
 
-// Lê a mensagem do console e envia
-rl.question('Digite a mensagem para enviar ao servidor: ', (message) => {
-  sendMessage(message);
-  rl.close();
+// Configura o evento de erro
+client.on("error", (err) => {
+  console.error("Erro no cliente:", err);
+  client.close();
 });
+
+// Inicia o prompt para o usuário
+promptForMessage();

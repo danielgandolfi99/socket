@@ -5,43 +5,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dgram_1 = __importDefault(require("dgram"));
 const readline_1 = __importDefault(require("readline"));
-const client = dgram_1.default.createSocket('udp4');
-const serverPort = 40001;
-const serverHost = 'localhost';
-// Ler entrada do console
+const client = dgram_1.default.createSocket("udp4");
+const PORT = 40001;
+const HOST = "localhost";
+// Le entrada do console
 const rl = readline_1.default.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
 });
 // Envia uma mensagem para o servidor
 const sendMessage = (message) => {
-    client.send(message, serverPort, serverHost, (err) => {
+    client.send(message, PORT, HOST, (err) => {
         if (err) {
-            console.error('Erro ao enviar mensagem:', err);
-            client.close();
-            return;
+            console.error("Erro ao enviar a mensagem:", err);
         }
-        console.log('Mensagem enviada. Aguardando resposta...');
+        else {
+            console.log("Mensagem enviada. Aguardando resposta...");
+        }
     });
 };
-// Lê a entrada do usuário e envia a mensagem
+// Função para continuar pedindo mensagens
 const promptForMessage = () => {
-    rl.question('Digite a mensagem para enviar ao servidor: ', (message) => {
+    rl.question("Digite a mensagem para enviar ao servidor: ", (message) => {
         if (!message) {
-            console.error('Por favor, forneça uma mensagem.');
-            return promptForMessage();
+            console.error("Por favor, forneça uma mensagem.");
+            return promptForMessage(); // Se a mensagem estiver vazia, solicita novamente.
         }
         sendMessage(message);
     });
 };
-// Configura o evento de recebimento de mensagens
-client.on('message', (msg) => {
-    console.log('Resposta do servidor:', msg.toString());
-    promptForMessage();
+// Recebe a resposta do servidor
+client.on("message", (msg) => {
+    console.log("Resposta do servidor:", msg.toString());
+    promptForMessage(); // Após receber a resposta, pede uma nova mensagem.
 });
 // Configura o evento de erro
-client.on('error', (err) => {
-    console.error('Erro no cliente:', err);
+client.on("error", (err) => {
+    console.error("Erro no cliente:", err);
     client.close();
 });
 // Inicia o prompt para o usuário

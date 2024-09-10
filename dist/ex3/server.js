@@ -16,25 +16,28 @@ const dgram_1 = __importDefault(require("dgram"));
 const promises_1 = require("fs/promises");
 const path_1 = __importDefault(require("path"));
 const server = dgram_1.default.createSocket('udp4');
-// Defina o diretório base onde os arquivos estão localizados
-const BASE_DIR = 'C:\\Users\\danie\\Downloads\\teste';
+// Definir o diretório base onde os arquivos estão localizados
+const BASE_DIR = 'C:\\Users\\daniel\\Downloads\\teste';
 server.on('message', (msg, rinfo) => __awaiter(void 0, void 0, void 0, function* () {
-    const filename = msg.toString();
+    const filename = msg.toString().trim(); // Remover espaços em branco ao redor
     const filePath = path_1.default.join(BASE_DIR, filename);
     console.log(`Recebido pedido para o arquivo: ${filename}`);
     try {
+        // Le o conteúdo do arquivo como buffer binário
         const fileContent = yield (0, promises_1.readFile)(filePath);
         console.log(`Enviando conteúdo do arquivo: ${filename}`);
-        // Envie o nome do arquivo e o conteúdo juntos, separados por um delimitador
-        const response = `${filename}\n${fileContent}`;
+        // Enviar o conteúdo como buffer
+        const response = Buffer.concat([Buffer.from(`${filename}\n`), fileContent]);
         server.send(response, rinfo.port, rinfo.address);
     }
     catch (error) {
-        const errorMsg = 'Arquivo não encontrado';
-        console.log(`Erro ao encontrar o arquivo: ${filename}`);
+        const errorMsg = `Erro: Arquivo "${filename}" não encontrado`;
+        console.log(errorMsg);
+        // Enviar uma mensagem de erro para o cliente
         server.send(errorMsg, rinfo.port, rinfo.address);
     }
 }));
-server.bind(40001, () => {
-    console.log('Servidor UDP está aguardando solicitações na porta 40001');
+// Iniciar o servidor na porta 40002
+server.bind(40002, () => {
+    console.log('Servidor UDP está aguardando solicitações na porta 40002');
 });
