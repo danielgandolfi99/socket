@@ -15,4 +15,4 @@
 * ```node dist/ex3/server.js``` - Rodar servidor do exercício 3
 * ```node dist/ex3/client.js``` - Rodar client do exercício 3
 
-* No exercício 3 deve colocar o caminho em BASE_DIR para o servidor buscar o arquivo desejado.
+* No exercício 3, no arquivo ```server.ts``` deve-se colocar o caminho em ```BASE_DIR``` para o servidor buscar o arquivo desejado.
